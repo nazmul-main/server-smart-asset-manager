@@ -75,7 +75,7 @@ async function run() {
     });
 
     // asset get api 
-    app.get('/api/v1/assets', async (req, res) => {
+    app.get('/api/v1/update/assets/:id', async (req, res) => {
       const cursor = AssetsCllection.find()
       const result = await  cursor.toArray()
       res.send(result);
