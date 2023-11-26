@@ -4,7 +4,7 @@ const cors = require('cors'); // Import the cors middleware
 const jwt = require('jsonwebtoken');
 const app = express();
 require('dotenv').config();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5007;
 app.use(cors());
 app.use(express.json())
 
@@ -14,6 +14,8 @@ app.use(express.json())
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.idkvt6k.mongodb.net/?retryWrites=true&w=majority`;
+
+const AssetManagment = "smart_asset_managment";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -29,12 +31,12 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    const AssetsCllection = client.db(AssetManagment).collection("my_assets");
 
 
     // /*  jwt post api */
     app.post('/api/v1/jwt', async (req, res) => {
       const user = req.body;
-      console.log(req.body);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '1h'
       })
@@ -52,8 +54,8 @@ async function run() {
         if (err) {
           return res.status(401).send({ message: 'unauthorized access 2' })
         }
-        console.log(decoded);
         req.decoded = decoded;
+        console.log(decoded, '1');
         next();
       })
     }
@@ -62,12 +64,25 @@ async function run() {
 
      
 
-    app.get('/api/v1/text', async (req, res) => {
-      res.send('thisis text1')
-    })
+    /* -------------Admin Releted------------- */
+
+    // asset post  api 
+    app.post('/api/v1/assets', async (req, res) => {
+      const blog = req.body;
+      const result = await AssetsCllection.insertOne(blog);
+      console.log(result);
+      res.send(result);
+    });
+
+    // asset get api 
+    app.get('/api/v1/assets', async (req, res) => {
+      const cursor = AssetsCllection.find()
+      const result = await  cursor.toArray()
+      res.send(result);
+    });
 
 
-
+    
 
 
 
@@ -95,3 +110,12 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Smart asset manement server is running ${port}`);
 });
+
+
+
+
+
+/* 
+  lotify 
+  undrop
+*/
