@@ -4,7 +4,7 @@ const cors = require('cors'); // Import the cors middleware
 const jwt = require('jsonwebtoken');
 const app = express();
 require('dotenv').config();
-const port = process.env.PORT || 5007;
+const port = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json())
 
@@ -12,7 +12,7 @@ app.use(express.json())
 // 2j7OAwG8JS12ApQ1
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.idkvt6k.mongodb.net/?retryWrites=true&w=majority`;
 
 const AssetManagment = "smart_asset_managment";
@@ -34,35 +34,35 @@ async function run() {
     const AssetsCllection = client.db(AssetManagment).collection("my_assets");
 
 
-    // /*  jwt post api */
-    app.post('/api/v1/jwt', async (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '1h'
-      })
-      res.send({ token });
-    })
+    // // /*  jwt post api */
+    // app.post('/api/v1/jwt', async (req, res) => {
+    //   const user = req.body;
+    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    //     expiresIn: '1h'
+    //   })
+    //   res.send({ token });
+    // })
 
     // middleware 
-    const verifyToken = (req, res, next) => {
-      console.log('inside verify token', req.headers.authorization);
-      if (!req.headers.authorization) {
-        return res.status(401).send({ message: 'unauthorized access 1' });
-      }
-      const token = req.headers.authorization.split(' ')[1];
-      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-        if (err) {
-          return res.status(401).send({ message: 'unauthorized access 2' })
-        }
-        req.decoded = decoded;
-        console.log(decoded, '1');
-        next();
-      })
-    }
+    // const verifyToken = (req, res, next) => {
+    //   console.log('inside verify token', req.headers.authorization);
+    //   if (!req.headers.authorization) {
+    //     return res.status(401).send({ message: 'unauthorized access 1' });
+    //   }
+    //   const token = req.headers.authorization.split(' ')[1];
+    //   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    //     if (err) {
+    //       return res.status(401).send({ message: 'unauthorized access 2' })
+    //     }
+    //     req.decoded = decoded;
+    //     console.log(decoded, '1');
+    //     next();
+    //   })
+    // }
 
 
 
-     
+
 
     /* -------------Admin Releted------------- */
 
@@ -75,16 +75,52 @@ async function run() {
     });
 
     // asset get api 
-    app.get('/api/v1/update/assets/:id', async (req, res) => {
+    app.get('/api/v1/assets', async (req, res) => {
       const cursor = AssetsCllection.find()
-      const result = await  cursor.toArray()
+      const result = await cursor.toArray()
       res.send(result);
     });
 
+    // asset single  get api 
+    app.get('/api/v1/assets/update-assets/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log("id", id);
+      const query = { _id: new ObjectId(id) }
+      const result = await AssetsCllection.findOne(query)
+      res.send(result);
+    });
 
-    
+    // update data
+    app.put('/api/v1/assets/update-assets-done/:id', async (req, res) => {
+      const id = req.params.id;
+      const update = req.body
+      console.log(id, update);
+      const filter = { _id: new ObjectId(id) }
+      const option = { upsert: true }
+      const updatedBlog = {
+        $set: {
+          name: update.name,
+          image: update.image,
+          quantity: update.quantity,
+          type: update.type
+        }
+      }
 
 
+
+      const result = await AssetsCllection.updateOne(filter, updatedBlog, option);
+      res.send(result);
+      console.log(result);
+    })
+
+
+    /* list delete  Delete */
+    app.delete('/api/v1/assets/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await AssetsCllection.deleteOne(query);
+      res.send(result)
+    });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
