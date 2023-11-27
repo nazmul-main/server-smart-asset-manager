@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors'); // Import the cors middleware
 const jwt = require('jsonwebtoken');
+const stripe = require('stripe')(process.env.STRIPE_SICRET_KEY);
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 5001;
@@ -62,6 +63,24 @@ async function run() {
     // }
 
 
+
+
+    /* -------------Payment Releted------------- */
+
+
+    /* payment intent post */
+    app.post("api/v1/create-payment-intent", async (req, res) =>{
+      const {price} = req.body ;
+      const amount = parseInt(price * 100);
+      const paymentIntent = await  stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+      })
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      });
+    })
 
 
 
