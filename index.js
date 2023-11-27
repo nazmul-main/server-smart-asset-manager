@@ -125,12 +125,12 @@ async function run() {
 
 
 
-    
+
     /* -------------Employe Releted------------- */
 
-  
+
     // coustom-asset post  api 
-    app.post('/api/v1/coustom-assets', async (req, res) => {
+    app.post('/api/v1/coustom-assets/:id', async (req, res) => {
       const blog = req.body;
       const result = await Coustom_Assets_Cllection.insertOne(blog);
       console.log(result);
@@ -146,6 +146,26 @@ async function run() {
 
 
 
+    // update data
+    app.put('/api/v1/coustom-assets/:id', async (req, res) => {
+      const id = req.params.id;
+      const update = req.body
+      console.log(id, update);
+      const filter = { _id: new ObjectId(id) }
+      const option = { upsert: true }
+      const updatedBlog = {
+        $set: {
+          assetName: update.assetName,
+          assetType: update.assetType,
+          price: update.price,
+          additionalInfo: update.additionalInfo,
+          assetImage: update.assetImage,
+        }
+      }
+      const result = await Coustom_Assets_Cllection.updateOne(filter, updatedBlog, option);
+      res.send(result);
+      console.log(result);
+    })
 
 
 
