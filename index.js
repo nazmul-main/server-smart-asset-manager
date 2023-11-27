@@ -32,6 +32,7 @@ async function run() {
     // await client.connect();
 
     const AssetsCllection = client.db(AssetManagment).collection("my_assets");
+    const Coustom_Assets_Cllection = client.db(AssetManagment).collection("coustom_request");
 
 
     // // /*  jwt post api */
@@ -122,6 +123,36 @@ async function run() {
       res.send(result)
     });
 
+
+
+    
+    /* -------------Employe Releted------------- */
+
+  
+    // coustom-asset post  api 
+    app.post('/api/v1/coustom-assets', async (req, res) => {
+      const blog = req.body;
+      const result = await Coustom_Assets_Cllection.insertOne(blog);
+      console.log(result);
+      res.send(result);
+    });
+
+    /* Coustom-asset get api */
+    app.get('/api/v1/coustom-assets', async (req, res) => {
+      const cursor = Coustom_Assets_Cllection.find()
+      const result = await cursor.toArray()
+      res.send(result);
+    });
+
+
+
+
+
+
+
+
+
+
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -129,6 +160,9 @@ async function run() {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
+
+
+
 }
 run().catch(console.dir);
 
