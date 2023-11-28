@@ -32,8 +32,14 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    const Assets_admin_Cllection = client.db(AssetManagment).collection("user_admin");
+    const Assets_Employe_Cllection = client.db(AssetManagment).collection("user_Employe");
     const AssetsCllection = client.db(AssetManagment).collection("my_assets");
     const Coustom_Assets_Cllection = client.db(AssetManagment).collection("coustom_request");
+
+
+
+    /* -------------JWT Releted------------- */
 
 
     // // /*  jwt post api */
@@ -46,21 +52,38 @@ async function run() {
     // })
 
     // middleware 
-    // const verifyToken = (req, res, next) => {
-    //   console.log('inside verify token', req.headers.authorization);
-    //   if (!req.headers.authorization) {
-    //     return res.status(401).send({ message: 'unauthorized access 1' });
-    //   }
-    //   const token = req.headers.authorization.split(' ')[1];
-    //   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    //     if (err) {
-    //       return res.status(401).send({ message: 'unauthorized access 2' })
-    //     }
-    //     req.decoded = decoded;
-    //     console.log(decoded, '1');
-    //     next();
-    //   })
-    // }
+    const verifyToken = (req, res, next) => {
+      console.log('inside verify token', req.headers.authorization);
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: 'unauthorized access 1' });
+      }
+      const token = req.headers.authorization.split(' ')[1];
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+          return res.status(401).send({ message: 'unauthorized access 2' })
+        }
+        req.decoded = decoded;
+        console.log(decoded, '1');
+        next();
+      })
+    }
+
+
+
+    /*  jwt post api */
+    app.post('/api/v1/jwt', async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '1h'
+      })
+      res.send({ token });
+    })
+
+
+
+
+
+
 
 
 
@@ -69,10 +92,10 @@ async function run() {
 
 
     /* payment intent post */
-    app.post("api/v1/create-payment-intent", async (req, res) =>{
-      const {price} = req.body ;
+    app.post("api/v1/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
       const amount = parseInt(price * 100);
-      const paymentIntent = await  stripe.paymentIntents.create({
+      const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
         currency: 'usd',
         payment_method_types: ['card']
@@ -142,11 +165,43 @@ async function run() {
       res.send(result)
     });
 
+   
+
+    app.patch('/api/v1/users-admin/:email', async(req,res)=>{
+      const email = req.params.email;
+      console.log(email);
+      const filter = {email: email}
+      const updatedDoc = {
+        $set:{
+          role: "admin"
+        }
+      }
+      const result = await Assets_Employe_Cllection.updateOne(filter, updatedDoc)
+      res.send(result)
+    })
+
 
 
 
     /* -------------Employe Releted------------- */
 
+    app.post('/api/v1/users-employee', async (req, res) => {
+      const user = req.body
+      const query = { email: user.email, }
+      const exitingUser = await Assets_Employe_Cllection.findOne(query)
+      if (exitingUser) {
+        return res.send({ messege: "user already exists", insertedId: null })
+      }
+      const result = await Assets_Employe_Cllection.insertOne(user);
+      res.send(result);
+    })
+
+    /*  all user */
+    app.get('/api/v1/all-users', async (req, res) => {
+      const cursor = Assets_Employe_Cllection.find()
+      const result = await cursor.toArray()
+      res.send(result);
+    });
 
     // coustom-asset post  api 
     app.post('/api/v1/coustom-assets/:id', async (req, res) => {
