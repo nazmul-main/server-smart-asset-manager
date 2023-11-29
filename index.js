@@ -166,8 +166,7 @@ async function run() {
       const option = { upsert: true }
       const updatedBlog = {
         $set: {
-          name: update.name,
-          image: update.image,
+          name: update.name, 
           quantity: update.quantity,
           type: update.type
         }
