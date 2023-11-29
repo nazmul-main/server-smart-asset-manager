@@ -32,18 +32,18 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const Assets_admin_Cllection = client.db(AssetManagment).collection("user_admin");
     const Assets_Employe_Cllection = client.db(AssetManagment).collection("user_Employe");
     const AssetsCllection = client.db(AssetManagment).collection("my_assets");
     const Coustom_Assets_Cllection = client.db(AssetManagment).collection("coustom_request");
+    const Team_Cllection = client.db(AssetManagment).collection("my_team");
 
 
 
     /* -------------JWT Releted------------- */
 
 
-     /*  jwt post api */
-     app.post('/api/v1/jwt', async (req, res) => {
+    /*  jwt post api */
+    app.post('/api/v1/jwt', async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: '1h'
@@ -72,7 +72,7 @@ async function run() {
 
 
 
-   
+
 
 
     /* varty token */
@@ -119,6 +119,19 @@ async function run() {
 
 
     /* -------------Admin Releted------------- */
+
+    // /* verify admin */
+    // const veryAdmin = async (req, res, next) => {
+    //   const email = req.decoded.email;
+    //   console.log(email);
+    //   const query = { email: email };
+    //   const user = await Assets_Employe_Cllection.findOne(query);
+    //   const isAdmin = user?.role == 'admin'
+    //   if (!isAdmin) {
+    //     return res.status(403).send({ message: 'forbidden access' });
+    //   }
+    //   next();
+    // }
 
     // asset post  api 
     app.post('/api/v1/assets', async (req, res) => {
@@ -193,6 +206,41 @@ async function run() {
 
 
 
+    /* My tem relaterd */
+    app.post('/api/v1/add-team', async (req, res) => {
+      const team = req.body;
+      const { userId } = team;
+      const query = { _id: new ObjectId(userId) };
+      const result = await Team_Cllection.insertOne(team);
+      const updateduser = {
+        $set: {
+          role: "employee"
+        }
+      }
+      await Assets_Employe_Cllection.updateOne(query, updateduser)
+      res.send(result);
+    });
+
+    /* Team Mebber Delete to collection*/
+    app.delete('/api/v1/add-team-delete/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { adminEmail: (email) }
+      const result = await Team_Cllection.deleteOne(query);
+      res.send(result);
+    });
+
+
+
+
+    app.get('/api/v1/add-team', async (req, res) => {
+      const email = req.query.email;
+      const query = { adminEmail: email };
+      const result = await Team_Cllection.find(query).toArray();
+      res.send(result)
+    });
+
+
+
 
     /* -------------Employe Releted------------- */
 
@@ -227,7 +275,7 @@ async function run() {
       if (user) {
         admin = user?.role === 'admin'
       }
-      res.send({admin})
+      res.send({ admin })
 
 
 
@@ -314,3 +362,10 @@ app.listen(port, () => {
   lotify 
   undrop
 */
+
+
+
+
+
+
+
