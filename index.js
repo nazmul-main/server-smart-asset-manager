@@ -42,14 +42,16 @@ async function run() {
     /* -------------JWT Releted------------- */
 
 
-    // // /*  jwt post api */
-    // app.post('/api/v1/jwt', async (req, res) => {
-    //   const user = req.body;
-    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-    //     expiresIn: '1h'
-    //   })
-    //   res.send({ token });
-    // })
+     /*  jwt post api */
+     app.post('/api/v1/jwt', async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '1h'
+      })
+      res.send({ token });
+    })
+
+
 
     // middleware 
     const verifyToken = (req, res, next) => {
@@ -70,18 +72,27 @@ async function run() {
 
 
 
-    /*  jwt post api */
-    app.post('/api/v1/jwt', async (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '1h'
-      })
-      res.send({ token });
-    })
+   
 
 
+    /* varty token */
 
+    // const verifyToken = (req, res, next) => {
+    //   console.log("inside veryfytoken", req.headers);
 
+    //   if (!req.headers.authorization) {
+    //     return res.status(401).send({ messege: 'forbidden access denied' });
+    //     const token = req.headers.authorization.split(' ')[1];
+    //     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    //       if (err) {
+    //         return res.status(401).send({ message: 'unauthorized access 2' })
+    //       }
+    //       req.decoded = decoded;
+    //       console.log(decoded, '1');
+    //       next();
+    //     })
+
+    //   }
 
 
 
@@ -165,14 +176,14 @@ async function run() {
       res.send(result)
     });
 
-   
 
-    app.patch('/api/v1/users-admin/:email', async(req,res)=>{
+
+    app.patch('/api/v1/users-admin/:email', async (req, res) => {
       const email = req.params.email;
       console.log(email);
-      const filter = {email: email}
+      const filter = { email: email }
       const updatedDoc = {
-        $set:{
+        $set: {
           role: "admin"
         }
       }
@@ -202,6 +213,26 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result);
     });
+
+
+    app.get('/api/v1/users-admin/:email', verifyToken, async (req, res) => {
+      const email = req.params.email
+      console.log(email);
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: 'unathorized 2' })
+      };
+      const query = { email: email };
+      const user = await Assets_Employe_Cllection.findOne(query)
+      let admin = false;
+      if (user) {
+        admin = user?.role === 'admin'
+      }
+      res.send({admin})
+
+
+
+
+    })
 
     // coustom-asset post  api 
     app.post('/api/v1/coustom-assets/:id', async (req, res) => {
