@@ -6,11 +6,19 @@ const stripe = require('stripe')(process.env.STRIPE_SICRET_KEY);
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 5001;
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'https://server-smart-asset-manager.vercel.app/'
+
+    ],
+
+  }),
+)
 app.use(express.json())
 
-// smart-asset-managment
-// 2j7OAwG8JS12ApQ1
+
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -148,6 +156,15 @@ async function run() {
       res.send(result);
     });
 
+    app.get('/api/v1/assets', async (req, res) => {
+      const email = req.query.email;
+      const query = { adminEmail: email };
+      const result = await AssetsCllection.find(query).toArray();
+      res.send(result)
+    });
+   
+
+
     // asset single  get api 
     app.get('/api/v1/assets/update-assets/:id', async (req, res) => {
       const id = req.params.id;
@@ -166,7 +183,7 @@ async function run() {
       const option = { upsert: true }
       const updatedBlog = {
         $set: {
-          name: update.name, 
+          name: update.name,
           quantity: update.quantity,
           type: update.type
         }
@@ -216,7 +233,7 @@ async function run() {
           role: "employee"
         }
       }
-      await Assets_Employe_Cllection.updateOne(query, updateduser)
+      await Team_Cllection  .updateOne(query, updateduser)
       res.send(result);
     });
 
@@ -229,7 +246,15 @@ async function run() {
     });
 
 
+    // asset get api 
+    app.get('/api/v1/all-add-team', async (req, res) => {
+      const cursor = Team_Cllection.find()
+      const result = await cursor.toArray()
+      res.send(result);
+    });
 
+
+    /* flter tem member */
 
     app.get('/api/v1/add-team', async (req, res) => {
       const email = req.query.email;
@@ -237,6 +262,17 @@ async function run() {
       const result = await Team_Cllection.find(query).toArray();
       res.send(result)
     });
+
+    /* filter */
+    app.get('/api/v1/add-team-one', async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await Team_Cllection.findOne(query);
+      res.send(result)
+    });
+
+
+
 
 
 
@@ -259,6 +295,22 @@ async function run() {
       const cursor = Assets_Employe_Cllection.find()
       const result = await cursor.toArray()
       res.send(result);
+    });
+
+    /*  single user */
+    app.get('/api/v1/all-users-single', async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await Assets_Employe_Cllection.findOne(query);
+      res.send(result)
+    });
+
+    /* find users */
+    app.get('/api/v1/all-users-find', async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await Assets_Employe_Cllection.find(query);
+      res.send(result)
     });
 
 
@@ -318,6 +370,27 @@ async function run() {
       res.send(result);
       console.log(result);
     })
+
+    /* Update Profile */
+    app.put('/api/v1/all-users-update/:id', async (req, res) => {
+      const id = req.params.id;
+      const update = req.body
+      console.log(id, update);
+      const filter = { _id: new ObjectId(id) }
+      const option = { upsert: true }
+      const updatedBlog = {
+        $set: {
+
+          adminname: update.adminname,
+          bithdayDate: update.bithdayDate,
+          email: update.email
+        }
+      }
+      const result = await Assets_Employe_Cllection.updateOne(filter, updatedBlog, option);
+      res.send(result);
+      console.log(result);
+    })
+
 
 
 
