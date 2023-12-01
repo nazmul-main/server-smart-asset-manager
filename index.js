@@ -156,13 +156,13 @@ async function run() {
       res.send(result);
     });
 
-    app.get('/api/v1/assets', async (req, res) => {
-      const email = req.query.email;
+    app.get('/api/v1/assets-filter', async (req, res) => {
+      const email = req.query.yourAdmin;
       const query = { adminEmail: email };
       const result = await AssetsCllection.find(query).toArray();
       res.send(result)
     });
-   
+
 
 
     // asset single  get api 
@@ -233,15 +233,21 @@ async function run() {
           role: "employee"
         }
       }
-      await Team_Cllection  .updateOne(query, updateduser)
+      await Assets_Employe_Cllection.updateOne(query, updateduser)
       res.send(result);
     });
 
     /* Team Mebber Delete to collection*/
-    app.delete('/api/v1/add-team-delete/:email', async (req, res) => {
-      const email = req.params.email;
-      const query = { adminEmail: (email) }
+    app.delete('/api/v1/add-team-delete/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
       const result = await Team_Cllection.deleteOne(query);
+      const updateduser = {
+        $set: {
+          role: "employee"
+        }
+      }
+      await Assets_Employe_Cllection.updateOne(query, updateduser)
       res.send(result);
     });
 
@@ -258,14 +264,16 @@ async function run() {
 
     app.get('/api/v1/add-team', async (req, res) => {
       const email = req.query.email;
+      console.log(email);
       const query = { adminEmail: email };
       const result = await Team_Cllection.find(query).toArray();
       res.send(result)
     });
 
-    /* filter */
+    /* find */
     app.get('/api/v1/add-team-one', async (req, res) => {
       const email = req.query.email;
+      console.log(email);
       const query = { email: email };
       const result = await Team_Cllection.findOne(query);
       res.send(result)
@@ -327,6 +335,8 @@ async function run() {
         admin = user?.role === 'admin'
       }
       res.send({ admin })
+
+      /* employe role change */
 
 
 
