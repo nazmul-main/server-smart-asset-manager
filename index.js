@@ -44,6 +44,7 @@ async function run() {
     const AssetsCllection = client.db(AssetManagment).collection("my_assets");
     const Coustom_Assets_Cllection = client.db(AssetManagment).collection("coustom_request");
     const Team_Cllection = client.db(AssetManagment).collection("my_team");
+    const Asset_Request_Cllection = client.db(AssetManagment).collection("requested_asset");
 
 
 
@@ -285,6 +286,37 @@ async function run() {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /* -------------Employe Releted------------- */
 
     app.post('/api/v1/users-employee', async (req, res) => {
@@ -335,12 +367,6 @@ async function run() {
         admin = user?.role === 'admin'
       }
       res.send({ admin })
-
-      /* employe role change */
-
-
-
-
     })
 
     // coustom-asset post  api 
@@ -400,6 +426,61 @@ async function run() {
       res.send(result);
       console.log(result);
     })
+
+
+    /* requerst asset post api */
+    app.post('/api/v1/assets-request', async (req, res) => {
+      const reqAsset = req.body;
+      const result = await Asset_Request_Cllection.insertOne(reqAsset);
+      console.log(result);
+      res.send(result);
+    });
+
+   
+    /* flter tem member */
+
+    app.get('/api/v1/assets-request', async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+      const query = { adminEmail: email };
+      const result = await Asset_Request_Cllection.find(query).toArray();
+      res.send(result)
+    });
+
+    /* find */
+    app.get('/api/v1/assets-request-one', async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+      const query = { email: email };
+      const result = await Asset_Request_Cllection.findOne(query);
+      res.send(result)
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
