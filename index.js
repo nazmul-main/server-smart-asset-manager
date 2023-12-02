@@ -436,10 +436,18 @@ async function run() {
       res.send(result);
     });
 
-   
-    /* flter tem member */
+    // ----------------------------------------------------------------
 
     app.get('/api/v1/assets-request', async (req, res) => {
+      const cursor = Asset_Request_Cllection.find()
+      const result = await cursor.toArray()
+      res.send(result);
+    });
+
+
+    /* flter tem member */
+
+    app.get('/api/v1/assets-request-filter', async (req, res) => {
       const email = req.query.email;
       console.log(email);
       const query = { adminEmail: email };
@@ -457,6 +465,13 @@ async function run() {
     });
 
 
+    /* list delete  Delete */
+    app.delete('/api/v1/assets-request-delete/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await Asset_Request_Cllection.deleteOne(query);
+      res.send(result)
+    });
 
 
 
