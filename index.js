@@ -281,6 +281,22 @@ async function run() {
     });
 
 
+    // update data-my asset
+    app.put('/api/v1/myassets-update/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updatedBlog = {
+        $set: {
+          status: 'returned ⏎',
+        }
+      }
+      const result = await Asset_Request_Cllection.updateOne(filter, updatedBlog);
+      res.send(result);
+      console.log(result);
+    })
+
+
+
 
 
 
@@ -427,6 +443,29 @@ async function run() {
       console.log(result);
     })
 
+    /* Update Profile */
+    app.put('/api/v1/all-users-update-employe/:id', async (req, res) => {
+      const id = req.params.id;
+      const update = req.body
+      console.log(id, update);
+      const filter = { _id: new ObjectId(id) }
+      const option = { upsert: true }
+      const updatedBlog = {
+        $set: {
+
+          adminname: update.adminname,
+          bithdayDate: update.bithdayDate,
+          email: update.email
+        }
+      }
+      const result = await Assets_Employe_Cllection.updateOne(filter, updatedBlog, option);
+      res.send(result);
+      console.log(result);
+    })
+
+
+
+// ----------------------------------------------------------------
 
     /* requerst asset post api */
     app.post('/api/v1/assets-request', async (req, res) => {
@@ -436,7 +475,7 @@ async function run() {
       res.send(result);
     });
 
-    // ----------------------------------------------------------------
+    
 
     app.get('/api/v1/assets-request', async (req, res) => {
       const cursor = Asset_Request_Cllection.find()
@@ -445,15 +484,22 @@ async function run() {
     });
 
 
-    /* flter tem member */
-
+    /* flter request for employe   */
     app.get('/api/v1/assets-request-filter', async (req, res) => {
       const email = req.query.email;
       console.log(email);
-      const query = { adminEmail: email };
+      const query = { emailRequester: email };
       const result = await Asset_Request_Cllection.find(query).toArray();
       res.send(result)
     });
+
+    // app.get('/api/v1/assets-request-filter', async (req, res) => {
+    //   const email = req.query.email;
+    //   console.log(email);
+    //   const query = { emailRequester: email };
+    //   const result = await Asset_Request_Cllection.find(query).toArray();
+    //   res.send(result)
+    // });
 
     /* find */
     app.get('/api/v1/assets-request-one', async (req, res) => {
