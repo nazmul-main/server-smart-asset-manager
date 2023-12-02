@@ -158,12 +158,12 @@ async function run() {
     });
 
     app.get('/api/v1/assets-filter', async (req, res) => {
-      const email = req.query.yourAdmin;
+      const email = req.query.email;
+      console.log('admin_email',email);
       const query = { adminEmail: email };
       const result = await AssetsCllection.find(query).toArray();
       res.send(result)
     });
-
 
 
     // asset single  get api 
@@ -465,13 +465,29 @@ async function run() {
     });
 
 
-    /* list delete  Delete */
+    /* request list    Delete */
     app.delete('/api/v1/assets-request-delete/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await Asset_Request_Cllection.deleteOne(query);
       res.send(result)
     });
+
+    /* request aprove pi for put */
+
+    // update data
+    app.put('/api/v1/assets-request-update/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updatedBlog = {
+        $set: {
+          status: 'Approved ✔️',
+        }
+      }
+      const result = await Asset_Request_Cllection.updateOne(filter, updatedBlog);
+      res.send(result);
+      console.log(result);
+    })
 
 
 
