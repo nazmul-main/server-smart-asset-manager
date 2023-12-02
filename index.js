@@ -159,7 +159,7 @@ async function run() {
 
     app.get('/api/v1/assets-filter', async (req, res) => {
       const email = req.query.email;
-      console.log('admin_email',email);
+      console.log('admin_email', email);
       const query = { adminEmail: email };
       const result = await AssetsCllection.find(query).toArray();
       res.send(result)
@@ -386,7 +386,7 @@ async function run() {
     })
 
     // coustom-asset post  api 
-    app.post('/api/v1/coustom-assets/:id', async (req, res) => {
+    app.post('/api/v1/coustom-assets', async (req, res) => {
       const blog = req.body;
       const result = await Coustom_Assets_Cllection.insertOne(blog);
       console.log(result);
@@ -398,6 +398,12 @@ async function run() {
       const cursor = Coustom_Assets_Cllection.find()
       const result = await cursor.toArray()
       res.send(result);
+    });
+    app.get('/api/v1/coustom-assets-flter', async (req, res) => {
+      const email = req.query.email;
+      const query = { emailRequester: email };
+      const result = await Coustom_Assets_Cllection.find(query).toArray();
+      res.send(result)
     });
 
 
@@ -465,7 +471,7 @@ async function run() {
 
 
 
-// ----------------------------------------------------------------
+    // ----------------------------------------------------------------
 
     /* requerst asset post api */
     app.post('/api/v1/assets-request', async (req, res) => {
@@ -475,7 +481,7 @@ async function run() {
       res.send(result);
     });
 
-    
+
 
     app.get('/api/v1/assets-request', async (req, res) => {
       const cursor = Asset_Request_Cllection.find()
