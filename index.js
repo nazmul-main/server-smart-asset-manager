@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: [
       'http://localhost:5173',
-      'https://server-smart-asset-manager.vercel.app/'
+      // 'https://smart-asset-managment.web.app'
 
     ],
 
@@ -405,6 +405,20 @@ async function run() {
       const result = await Coustom_Assets_Cllection.find(query).toArray();
       res.send(result)
     });
+    app.get('/api/v1/coustom-assets-flter-admin', async (req, res) => {
+      const email = req.query.email;
+      const query = { adminEmail: email };
+      const result = await Coustom_Assets_Cllection.find(query).toArray();
+      res.send(result)
+    });
+
+    /* request list    Delete */
+    app.delete('/api/v1/coustom-assets-request-delete/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await Coustom_Assets_Cllection.deleteOne(query);
+      res.send(result)
+    });
 
 
 
@@ -495,6 +509,13 @@ async function run() {
       const email = req.query.email;
       console.log(email);
       const query = { emailRequester: email };
+      const result = await Asset_Request_Cllection.find(query).toArray();
+      res.send(result)
+    });
+    app.get('/api/v1/assets-request-filter-admin', async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+      const query = { adminEmail: email };
       const result = await Asset_Request_Cllection.find(query).toArray();
       res.send(result)
     });
